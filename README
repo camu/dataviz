@@ -21,14 +21,9 @@ Some sort of pseudo-xml; pseudo for being simplified a bit.
 First there has to be `object' tag with argument indicating the type
 of the object (just `pie', for now). Inside the object block you may
 have a `fname' tag, which tells the program the file in which the
-output should be printed; defaults to stdout. Also, there should be
+output should be printed; defaults to stdout. Use `style' tag to link
+some fancy CSS stylesheet to the diagram's .svg. Also, there should be
 some `val' tags inside the object block. It takes an ID as an argument
 and the actual value is inside the `val' block.
 
-So, an example file:
-
-<object pie>
-	<fname>pie1.svg</fname>
-	<val val1>10</val>
-	<val val2>30</val>
-</object>
+TL;DR: See `example'.
