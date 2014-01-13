@@ -14,22 +14,28 @@ int main( int argc, char *argv[] ) {
 	return read_file( argv[1] );
 }
 
-int sector( float _cx, float _cy, float _r, float _angle1, float _angle2, char *_options, FILE *_fp ) {
+int sector( int _id, char *_id_str, float _cx, float _cy, float _r, float _angle1, float _angle2, FILE *_fp ) {
 	float asx, asy, aex, aey; // arc start x and y, arc end x and y
 	asx = _r*cos( _angle1 );
 	asy = _r*sin( _angle1 );
 	aex = _r*cos( _angle2 )-asx;
 	aey = _r*sin( _angle2 )-asy;
 
-	fprintf( _fp, "<path d='M %f %f l %f %f a %f %f 0 %i %i %f %f z' %s />\n", _cx, _cy, asx, asy, _r, _r, 0, 1, aex, aey, _options );
+	char sector_size[4];
+	if( abs( _angle1-_angle2 ) > PI )
+		strcpy( sector_size, "1 1" );
+	else
+		strcpy( sector_size, "0 1" );
+
+	fprintf( _fp, "<path id='%i' class='sector sector-%i %s' d='M %f %f l %f %f a %f %f 0 %s %f %f z' />\n", _id, _id, _id_str, _cx, _cy, asx, asy, _r, _r, sector_size, aex, aey );
 
 	return 0;
 }
 
 int pie_chart( struct tag *_taglist ) {
-	FILE *fp;
+	FILE *fp = NULL;
 
-	struct tag *container = _taglist;
+	struct tag *container = _taglist, *style_tag = 0;
 	int parent_id = container->id;
 
 	float values_summed = 0;
@@ -38,21 +44,27 @@ int pie_chart( struct tag *_taglist ) {
 			values_summed += atof( container->val );
 		if( strcmp( container->class, "fname" ) == 0 )
 			fp = fopen( container->val, "w" );
+		if( strcmp( container->class, "style" ) == 0 )
+			style_tag = container;
 	}
 
 	if( !fp ) fp = stdout;
 
-	fprintf( fp, "<?xml version='1.0' ?>\n<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'>\n" );
-	//fprintf( fp, "<?xml-stylesheet type='text/css' href='style.css'?>\n" );
+	fprintf( fp, "<?xml version='1.0' ?>\n" );
+	if( style_tag )
+		fprintf( fp, "<?xml-stylesheet type='text/css' href='%s' ?>\n", style_tag->val );
+	fprintf( fp, "<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'>\n" );
 
 	container = _taglist;
 
+	int id = 0;
 	float angle1 = 0, angle2 = 0;
 	while( (container = container->next) ) {
 		if( container->parent->id == parent_id && strcmp( container->class, "val" ) == 0 ) {
 			angle2 += atof( container->val )/values_summed*FULL_ANGLE;
-			sector( 200, 200, 100, angle1, angle2, "", fp );
+			sector( id, (container->attr ? container->attr : ""), 200, 200, 100, angle1, angle2, fp );
 			angle1 = angle2;
+			id++;
 		}
 	}
 
@@ -65,15 +77,19 @@ int pie_chart( struct tag *_taglist ) {
 
 int read_file( const char *_file ) {
 	struct tag *taglist;
-	tag_struct_init( &taglist );
+	if( tag_struct_init( &taglist ) == -1 ) return 1;
 
 	FILE *fp = fopen( _file, "r" );
 	if( !fp ) {
 		printf( "Couldn't open file.\n" );
-		return 1;
+		return 2;
 	}
 
-	parse( fp, 0, &taglist );
+	if( parse( fp, 0, &taglist ) == -1 ) {
+		fclose( fp );
+		tag_struct_free( taglist );
+		return 1;
+	}
 
 	fclose( fp );
 

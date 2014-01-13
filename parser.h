@@ -18,8 +18,8 @@ int tag_struct_set_val( const char *, int, struct tag ** );
 struct tag *tag_struct_push_back( struct tag ** );
 int tag_struct_free( struct tag * );
 
-char get_tag( FILE *, char ** );
-char get_attr( FILE *, char ** );
+int get_tag( FILE *, char ** );
+int get_attr( FILE *, char ** );
 int parse( FILE *, struct tag *, struct tag ** );
 
 #endif

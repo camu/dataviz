@@ -11,7 +11,7 @@
 // functions
 
 // svg functions
-int sector( float, float, float, float, float, char *, FILE * );
+int sector( int, char *, float, float, float, float, float, FILE * );
 
 // data visualisation functions
 int pie_chart( struct tag *_taglist );
