@@ -1,6 +1,22 @@
 <object pie>
-	<fname>pie1.svg</fname>
+	<fname>pie.svg</fname>
 	<style>style.css</style>
 	<val herp>10</val>
 	<val derp>30</val>
+</object>
+<object curve>
+	<fname>curve.svg</fname>
+	<style>style.css</style>
+	<val herp>0; 0</val>
+	<val derp>10; 20</val>
+	<val serp>40; 30</val>
+	<val lerp>50; 40</val>
+</object>
+<object bar>
+	<fname>bar.svg</fname>
+	<style>style.css</style>
+	<val herp>30</val>
+	<val derp>40</val>
+	<val serp>70</val>
+	<val lerp>50</val>
 </object>

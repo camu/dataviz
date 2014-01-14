@@ -19,7 +19,7 @@ $ dataviz <file>
 Some sort of pseudo-xml; pseudo for being simplified a bit.
 
 First there has to be `object' tag with argument indicating the type
-of the object (just `pie', for now). Inside the object block you may
+of the object (`pie', `curve', `bar'). Inside the object block you may
 have a `fname' tag, which tells the program the file in which the
 output should be printed; defaults to stdout. Use `style' tag to link
 some fancy CSS stylesheet to the diagram's .svg. Also, there should be

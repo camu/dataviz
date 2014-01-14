@@ -5,7 +5,6 @@
 #include "parser.h"
 
 int id = 0;
-
 int tag_struct_init( struct tag **_tags ) {
 	*_tags = malloc( sizeof(struct tag) );
 	if( !*_tags ) return -1;
@@ -29,7 +28,7 @@ int tag_struct_set_class( const char * _class, int _len, struct tag **_tags ) {
 
 int tag_struct_set_attr( const char * _attr, int _len, struct tag **_tags ) {
 	(*_tags)->attr = malloc( _len+1 );
-	if( !(*_tags)->val ) return -1;
+	if( !(*_tags)->attr ) return -1;
 	strcpy( (*_tags)->attr, _attr );
 
 	return 0;
@@ -55,9 +54,9 @@ struct tag *tag_struct_push_back( struct tag **_tags ) {
 
 int tag_struct_free( struct tag *_tags ) {
 	if( _tags->next ) tag_struct_free( _tags->next );
-	free( _tags->class );
-	free( _tags->attr );
-	free( _tags->val );
+	if( _tags->class ) free( _tags->class );
+	if( _tags->attr ) free( _tags->attr );
+	if( _tags->val ) free( _tags->val );
 	free( _tags );
 
 	return 0;
@@ -78,6 +77,7 @@ int get_tag( FILE *_fp, char **_dest ) {
 			if( !_dest ) return -1;
 		}
 	} while( (c = fgetc( _fp )) != EOF );
+	(*_dest)[len] = 0;
 
 	return c;
 }
@@ -97,6 +97,7 @@ int get_attr( FILE *_fp, char **_dest ) {
 			if( !_dest ) return -1;
 		}
 	} while( (c = fgetc( _fp )) != EOF );
+	(*_dest)[len] = 0;
 
 	return c;
 }
@@ -112,7 +113,7 @@ int parse( FILE *_fp, struct tag *_tag, struct tag **_tags ) {
 	do {
 		if( c == '<' ) {
 			char *tag = 0;
-			if( !tag || (c = get_tag( _fp, &tag )) == -1 ) {
+			if( (c = get_tag( _fp, &tag )) == -1 ) {
 				if( val ) free( val );
 				return -1;
 			}
@@ -130,9 +131,11 @@ int parse( FILE *_fp, struct tag *_tag, struct tag **_tags ) {
 					return -1;
 				}
 				container->parent = parent;
+				free( tag );
 			} else /* if( strcmp( _tag, tag+1 ) == 0 ) */ {
+				free( tag );
+				val[len] = 0;
 				if( tag_struct_set_val( val, strlen( val ), &container ) == -1 ) {
-					free( tag );
 					free( val );
 					return -1;
 				} free( val );
@@ -161,7 +164,6 @@ int parse( FILE *_fp, struct tag *_tag, struct tag **_tags ) {
 			}
 			container = container->parent;
 			c = fgetc( _fp );
-			free( tag );
 		}
 
 		val[len] = c; len++;

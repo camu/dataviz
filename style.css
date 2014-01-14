@@ -1,6 +1,19 @@
 .sector-0 {
-fill: #f00;
+	fill: #f00;
 }
 .sector-1 {
-fill: #0f0;
+	fill: #0f0;
+}
+line {
+	stroke: #000;
+	stroke-width: 1;
+}
+polyline {
+	fill: none;
+	stroke: #f00;
+	stroke-width: 3;
+}
+.bar {
+	stroke: #f00;
+	stroke-width: 40;
 }
