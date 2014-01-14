@@ -1,14 +1,14 @@
 <object pie>
 	<fname>pie.svg</fname>
 	<style>style.css</style>
-	<size 10>300; 300</size>
+	<size 10>A6;h;300</size>
 	<val herp>10</val>
 	<val derp>30</val>
 </object>
 <object curve>
 	<fname>curve.svg</fname>
 	<style>style.css</style>
-	<size 10>600; 200</size>
+	<size 10>A6;h;300</size>
 	<reso>10; 10</reso>
 	<val herp>0; 0</val>
 	<val derp>10; 20</val>
@@ -18,7 +18,7 @@
 <object bar>
 	<fname>bar.svg</fname>
 	<style>style.css</style>
-	<size 10>340; 400</size>
+	<size 10>A6;v;300</size>
 	<reso>0.5; 10</reso>
 	<val herp>30</val>
 	<val derp>40</val>

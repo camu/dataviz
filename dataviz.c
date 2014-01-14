@@ -14,6 +14,49 @@ int main( int argc, char *argv[] ) {
 	return read_file( argv[1] );
 }
 
+int get_dimensions( struct tag *_tag, int *_w, int *_h, int *_b ) {
+	const char delimiter = ';';
+
+	float a_series[12];
+		a_series[0] = 46.8;
+		a_series[1] = 33.1;
+		a_series[2] = 23.4;
+		a_series[3] = 16.5;
+		a_series[4] = 11.7;
+		a_series[5] = 8.3;
+		a_series[6] = 5.8;
+		a_series[7] = 4.1;
+		a_series[8] = 2.9;
+		a_series[9] = 2.0;
+		a_series[10] = 1.5;
+		a_series[11] = 1.0;
+
+	struct tag *container = _tag;
+
+	if( container->val[0] == 'A' ) {
+		float w_in_inches = 0, h_in_inches = 0;
+		int n = atoi( container->val+1 ); if( n < 0 || n > 10 ) return -1;
+		char *tmp; if( !(tmp = strchr( container->val+1, delimiter )) ) return -1;
+		if( tmp[1] == 'h' ) {
+			w_in_inches = a_series[n];
+			h_in_inches = a_series[n+1];
+		} else if( tmp[1] == 'v' ) {
+			w_in_inches = a_series[n+1];
+			h_in_inches = a_series[n];
+		} else return -1;
+		if( !(tmp = strchr( tmp+1, delimiter )) ) return -1;
+		*_w = w_in_inches*atoi( tmp+1 );
+		*_h = h_in_inches*atoi( tmp+1 );
+	} else {
+		*_w = atoi( container->val );
+		char *tmp; if( !(tmp = strchr( container->val, delimiter )) ) return -1;
+		*_h = atoi( tmp+1 );
+	}
+	if( container->attr ) *_b = atoi( container->attr );
+
+	return 0;
+}
+
 int sector( int _id, char *_id_str, float _cx, float _cy, float _r, float _angle1, float _angle2, FILE *_fp ) {
 	float asx, asy, aex, aey; // arc start x and y, arc end x and y
 	asx = _r*cos( _angle1 );
@@ -52,7 +95,6 @@ int pie_chart( struct tag *_taglist ) {
 	struct tag *container = _taglist, *style_tag = 0;
 	int parent_id = container->id;
 
-	const char delimiter = ';';
 	int w = 0, h = 0, b = 0;
 
 	float values_summed = 0;
@@ -62,14 +104,10 @@ int pie_chart( struct tag *_taglist ) {
 				fp = fopen( container->val, "w" );
 			if( strcmp( container->class, "style" ) == 0 )
 				style_tag = container;
-			if( strcmp( container->class, "size" ) == 0 ) {
-				w = atoi( container->val );
-				char *tmp; if( !(tmp = strchr( container->val, delimiter )) ) return -1;
-				h = atoi( tmp+1 );
-				if( container->attr ) b = atoi( container->attr );
+			if( strcmp( container->class, "size" ) == 0 )
+				if( get_dimensions( container, &w, &h, &b ) == -1 ) return -1;
 			if( strcmp( container->class, "val" ) == 0 )
 				values_summed += atof( container->val );
-			}
 		}
 	}
 
@@ -121,12 +159,8 @@ int line_graph( struct tag *_taglist ) {
 				fp = fopen( container->val, "w" );
 			if( strcmp( container->class, "style" ) == 0 )
 				style_tag = container;
-			if( strcmp( container->class, "size" ) == 0 ) {
-				w = atoi( container->val );
-				char *tmp; if( !(tmp = strchr( container->val, delimiter )) ) return -1;
-				h = atoi( tmp+1 );
-				if( container->attr ) b = atoi( container->attr );
-			}
+			if( strcmp( container->class, "size" ) == 0 )
+				if( get_dimensions( container, &w, &h, &b ) == -1 ) return -1;
 			if( strcmp( container->class, "reso" ) == 0 ) {
 				reso_x = atof( container->val );
 				char *tmp; if( !(tmp = strchr( container->val, delimiter )) ) return -1;
@@ -203,12 +237,8 @@ int bar_chart( struct tag *_taglist ) {
 				fp = fopen( container->val, "w" );
 			if( strcmp( container->class, "style" ) == 0 )
 				style_tag = container;
-			if( strcmp( container->class, "size" ) == 0 ) {
-				w = atoi( container->val );
-				char *tmp; if( !(tmp = strchr( container->val, delimiter )) ) return -1;
-				h = atoi( tmp+1 );
-				if( container->attr ) b = atoi( container->attr );
-			}
+			if( strcmp( container->class, "size" ) == 0 )
+				if( get_dimensions( container, &w, &h, &b ) == -1 ) return -1;
 			if( strcmp( container->class, "reso" ) == 0 ) {
 				reso_x = atof( container->val );
 				char *tmp; if( !(tmp = strchr( container->val, delimiter )) ) return -1;
