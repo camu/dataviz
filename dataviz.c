@@ -78,13 +78,14 @@ int sector( int _id, char *_id_str, float _cx, float _cy, float _r, float _angle
 int arrow( float _x1, float _y1, float _x2, float _y2, FILE *_fp ) {
 	fprintf( _fp, "<line x1='%f' y1='%f' x2='%f' y2='%f' />\n", _x1, _y1, _x2, _y2 );
 
-	// FIXME. somewhat work's if the arrow's strictly horizontal or vertical; otherwise not.
-	float hook1_x = cos( atan( abs( _x2-_x1 ) )+PI/4 )*5;
-	float hook1_y = sin( atan( abs( _x2-_x1 ) )+PI/4 )*5;
-	float hook2_x = cos( atan( abs( _x2-_x1 ) )-PI*5/4 )*5;
-	float hook2_y = sin( atan( abs( _x2-_x1 ) )-PI*5/4 )*5;
-	fprintf( _fp, "<line x1='%f' y1='%f' x2='%f' y2='%f' />\n", _x2, _y2, _x2+hook1_x, _y2+hook1_y );
-	fprintf( _fp, "<line x1='%f' y1='%f' x2='%f' y2='%f' />\n", _x2, _y2, _x2+hook2_x, _y2+hook2_y );
+	float angle = atan2( (_y2-_y1), (_x2-_x1) );
+
+	float hook1_x = _x2 - cos( angle + PI/4 )*5;
+	float hook1_y = _y2 - sin( angle + PI/4 )*5;
+	float hook2_x = _x2 - cos( angle - PI/4 )*5;
+	float hook2_y = _y2 - sin( angle - PI/4 )*5;
+	fprintf( _fp, "<line x1='%f' y1='%f' x2='%f' y2='%f' />\n", _x2, _y2, hook1_x, hook1_y );
+	fprintf( _fp, "<line x1='%f' y1='%f' x2='%f' y2='%f' />\n", _x2, _y2, hook2_x, hook2_y );
 
 	return 0;
 }
@@ -193,10 +194,10 @@ int line_graph( struct tag *_taglist ) {
 	float i;
 	arrow( b, h+b, w+b, h+b, fp );
 	if( reso_x > 0 ) for( i = b+reso_x; i < w+b; i += reso_x )
-		fprintf( fp, "<line x1='%f' y1='%i' x2='%f' y2='%i' />", i, h+b-5, i, h+b+5 );
+		fprintf( fp, "<line x1='%f' y1='%i' x2='%f' y2='%i' />\n", i, h+b-5, i, h+b+5 );
 	arrow( b, h+b, b, b, fp );
 	if( reso_y > 0 ) for( i = h+b-reso_y; i > 0; i -= reso_y )
-		fprintf( fp, "<line x1='%i' y1='%f' x2='%i' y2='%f' />", b-5, i, b+5, i );
+		fprintf( fp, "<line x1='%i' y1='%f' x2='%i' y2='%f' />\n", b-5, i, b+5, i );
 
 	fprintf( fp, "<polyline class='curve' points='" );
 
